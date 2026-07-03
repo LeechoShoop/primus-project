@@ -1,4 +1,5 @@
 /target
+.idea/
 .secrets/
 operator.key
 master.key
