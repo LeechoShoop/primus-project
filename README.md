@@ -2,7 +2,7 @@
 
 A post-quantum Layer-1 blockchain written in Rust. Every identity, transaction, and peer connection is authenticated with **ML-DSA-87** (NIST post-quantum signatures) — there is no legacy elliptic-curve fallback. The network rejects HTTP entirely in favor of a custom QUIC/TCP + Noise_XX transport, and consensus runs on a deterministic, physics-inspired execution model called the **Kinetic Engine**.
 
-> Status: active development. Core consensus, networking, storage, CLI, SDK, and a WASM smart-contract VM are implemented and integrated. See [Project Maturity](#project-maturity) below.
+> **Status: research project, not under active development.** Core consensus, networking, storage, CLI, SDK, and a WASM smart-contract VM are implemented and integrated, but this repository is published as-is and is not being maintained going forward. See [Project Status](#project-status) below.
 
 ## Table of Contents
 - [Why](#why)
@@ -11,7 +11,7 @@ A post-quantum Layer-1 blockchain written in Rust. Every identity, transaction, 
 - [Key Technical Pillars](#key-technical-pillars)
 - [Getting Started](#getting-started)
 - [Security](#security)
-- [Project Maturity](#project-maturity)
+- [Project Status](#project-status)
 - [License](#license)
 
 ## Why
@@ -86,17 +86,23 @@ By default the node listens on TCP/QUIC port `9000`; the CLI talks to `127.0.0.1
 
 This is a research/portfolio project and has **not** undergone third-party security review. Do not use it to secure real value.
 
-## Project Maturity
+## Project Status
+
+This is a solo research/portfolio project built to explore post-quantum L1 design end-to-end — consensus, networking, storage, a WASM VM, and client tooling. **Active development has stopped.** The repository is published in its current state for anyone to read, fork, or build on; no further features, fixes, or releases are planned by the original author, and issues/PRs may go unanswered.
+
+Per-crate state at the point of publication:
 
 | Crate | Status |
 |---|---|
 | `primus-types` | Stable wire format, frozen bincode ordering |
 | `primus-storage` | Phase 2 complete — MPT + compact proofs + GC |
 | `primus-vm` | Native PVM + Wasmtime backend implemented |
-| `primus-core` | Active development — shim layer complete |
+| `primus-core` | Shim layer complete, consensus + IPC admin server functional |
 | `primus-net-opt` | Hardened & optimized post-audit |
 | `primus-sdk` | Noise-encrypted client, automatic retry/back-off |
 | `primus-cli` | Wallet, balance/send, admin commands implemented |
+
+Known open items are tracked in each crate's own spec (e.g. reorg atomicity is not fully transactional — see [§11 of SPECIFICATION.md](SPECIFICATION.md#11-known-limitations--recovery)). Forks are welcome; there's no CLA or contribution process since the project isn't maintained.
 
 ## License
 
