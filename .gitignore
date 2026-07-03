@@ -1,0 +1,11 @@
+/target
+.secrets/
+operator.key
+master.key
+data/
+*.db
+*.sled
+node_data/
+*.key
+*.pem
+.primus_config.toml

@@ -1,0 +1,57 @@
+[package]
+name = "primus-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand_core = "0.6"
+
+tokio = { version = "1.52.1", features = ["full"] }
+
+futures = "0.3"
+# Хеширование с защитой по памяти
+argon2 = "0.5"
+# Основной криптографический хеш
+sha3 = "0.10"
+# Хранилище
+sled = "0.34"
+# Сериализация
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+rkyv = { version = "0.7", default-features = false, features = ["alloc", "validation", "bytecheck", "size_32"] }
+# Работа с байтами
+hex = "0.4"
+anyhow = "1.0.102"
+tokio-util = { version = "0.7", features = ["codec"] }
+bytes = "1.9"
+sysinfo = "0.38.4"
+chrono = "0.4"
+# aes-gcm для шифрования, если захотим перенести и AES-EAX
+aes-gcm = "0.10"
+local-ip-address = "0.6.11"
+igd-next = { version = "0.17.0", features = ["aio_tokio"] }
+clap = { version = "4.6.1", features = ["derive"] }
+log = "0.4.29"
+env_logger = "0.11"
+blake3 = "1.8.4"
+ml-dsa = "0.0.4"
+dilithium-rs = "0.2.0"
+socket2 = "0.6.3"
+quinn = "0.11"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+rcgen = "0.13"
+snow  = "0.9"
+dashmap = "6.1"
+rand = "0.8"
+wtransport = "0.1"
+primus-sdk = { path = "../primus-sdk" }
+primus-types = { path = "../primus-types" }
+primus-net-opt = { path = "../primus-net-opt" }
+primus-storage = { path = "../primus-storage" }
+primus-vm      = { path = "../primus-vm" }
+async-trait = "0.1.89"
+
+[features]
+rtp_audit = []
+wasmtime-backend = ["primus-vm/wasmtime-backend"]

@@ -1,0 +1,17 @@
+[package]
+name = "primus-net-opt-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+bincode = "1.3.3"
+primus-net-opt = { path = ".." }
+
+# Cargo.lock is intentionally checked in for fuzzing reproducibility.
+[profile.release]
+debug = 1

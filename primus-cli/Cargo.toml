@@ -1,0 +1,46 @@
+[package]
+name = "primus-cli"
+version = "0.1.0"
+edition = "2024"
+authors = ["Architect"]
+description = "Command Line Interface for Primus-Project Layer-1"
+
+[dependencies]
+# --- Твои внутренние компоненты ---
+# Подключаем SDK по относительному пути
+primus-sdk = { path = "../primus-sdk" }
+primus-types = { path = "../primus-types" }
+
+# --- Работа с CLI и интерфейсом ---
+# Clap 4.0 с поддержкой макроса derive для удобного парсинга команд
+clap = { version = "4.4", features = ["derive", "env"] }
+# Для красивых таблиц в терминале (балансы, блоки)
+comfy-table = "7.0"
+# Цветной вывод в консоль (красный для ошибок, зеленый для успеха)
+colored = "2.0"
+
+# --- Асинхронность и сеть ---
+# Tokio нужен для сетевых запросов к ноде
+tokio = { version = "1.0", features = ["full"] }
+# Удобный HTTP-клиент (если твоя нода будет использовать JSON-RPC)
+reqwest = { version = "0.11", default-features = false, features = ["rustls-tls", "json"] }
+
+# --- Сериализация и данные ---
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+hex = "0.4"
+
+# --- Обработка ошибок ---
+# Чтобы не писать везде Box<dyn Error>, используем anyhow
+anyhow = "1.0"
+zeroize = { version = "1.7", features = ["derive"] }
+primus-client = { path = "../primus-client" }
+
+[profile.release]
+# Оптимизации для быстрой подписи ML-DSA
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = 'abort'
+sha3 = "0.10"

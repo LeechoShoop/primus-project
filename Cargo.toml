@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+    "primus-core",
+    "primus-sdk",
+    "primus-client",
+    "primus-cli",
+    "primus-types", "primus-net-opt", "primus-storage", "primus-vm",
+    "primus-vm/fuzz",
+]
+resolver = "2"

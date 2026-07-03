@@ -1,0 +1,4 @@
+[genesis]
+initial_supply = 1000000000
+timestamp = 1735689600
+server_seed_env = "PRIMUS_SERVER_SEED"

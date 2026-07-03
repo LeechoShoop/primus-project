@@ -1,0 +1,61 @@
+[package]
+name        = "primus-types"
+version     = "0.1.0"
+edition     = "2024"
+description = "Primus Network — Single Source of Truth for wire-format primitives"
+license     = "MIT"
+
+# ── Feature flags ──────────────────────────────────────────────────────────────
+#
+#  std     — Enables std::error::Error on PrimusError and std::net types in
+#             peer.rs (PrimusNR::addr(), PrimusNR::from_socket_addr()).
+#             Required for native (Linux / macOS / Windows) builds.
+#             Must NOT be enabled for wasm32-unknown-unknown or embedded targets.
+#
+#  verify  — Enables PrimusNR::verify(), which performs ML-DSA-87 signature
+#             verification over the node record. Pulls in the ml-dsa crate.
+#             Separated from `std` because:
+#               1. Signature verification belongs architecturally in primus-core,
+#                  not in this types crate. This flag exists as a transitional
+#                  shim until PrimusNR::verify() is migrated.
+#               2. WASM builds of the SDK do not need to verify peer signatures.
+#               3. ml-dsa adds ~800 KB to a WASM bundle; opt-in prevents
+#                  all consumers from paying that cost.
+#             Implies `std` because ml-dsa depends on std for its RNG path.
+#
+#  wasm    — Adds #[wasm_bindgen] to WasmExposedAtom view type only.
+#             MUST NOT be combined with `verify` (ml-dsa is incompatible
+#             with wasm32-unknown-unknown without getrandom/js feature).
+#
+[features]
+default = ["std"]
+std     = []
+verify  = ["dep:ml-dsa", "std"]
+wasm    = ["dep:wasm-bindgen"]
+
+[dependencies]
+# ── Serialization ──────────────────────────────────────────────────────────────
+serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
+rkyv  = { version = "0.7", default-features = false, features = ["alloc", "validation", "bytecheck", "size_32"] }
+
+# ── Hashing ────────────────────────────────────────────────────────────────────
+sha3 = { version = "0.10", default-features = false }
+zeroize = { version = "1", features = ["derive"] }
+
+
+# ── Cryptographic verification (optional, see feature docs above) ──────────────
+# ARCHITECTURAL NOTE: ml-dsa is optional and gated behind the `verify` feature.
+# The canonical location for ML-DSA-87 operations is primus-core. This
+# dependency exists transitionally for PrimusNR::verify(); it will be removed
+# when that method is migrated. Do not add further ml-dsa call sites here.
+ml-dsa = { version = "0.0.4", default-features = false, optional = true }
+
+# ── WASM (optional) ────────────────────────────────────────────────────────────
+wasm-bindgen = { version = "0.2", optional = true }
+
+[dev-dependencies]
+bincode    = "1"
+serde_json = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = "0.3"
