@@ -115,4 +115,4 @@ Local-only, never sent over the network:
 
 Findings from the pre-publication audit (hardcoded server seed, seed leakage in entropy output, missing `.gitignore` entries for `data/`/`*.db`, hardcoded genesis parameters and bind addresses, hardcoded localhost in TLS identity) were addressed before this repository was made public. In-code changelog tags (`BLK-001`..`BLK-003`, `DIV-001`..`DIV-003`, `INTDIV-001`, `size-guard-G4`, etc., visible in per-crate `<!-- Last sync -->` comments) trace individual fixes back to specific audit findings.
 
-This specification describes the protocol as implemented; it is a portfolio/research project and has not undergone independent third-party audit.
+This specification describes the protocol as implemented at the point of publication. The project is a solo portfolio/research effort, has not undergone independent third-party audit, and is **not under active development** — it is published as-is for reference and forking, with no ongoing maintenance commitment.
