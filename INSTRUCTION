@@ -1,0 +1,144 @@
+# Obsidian Nexus (Primus) — Testnet Deployment Guide
+
+A complete, step-by-step walkthrough for standing up a Primus testnet from scratch — from renting a server to your first friend sending a transaction.
+
+> **Note:** `primus-client` is a separate, stripped-down binary meant for end users of the network/wallet — distinct from `primus-cli`, the full administrative/terminal tool covered in the rest of this repo's docs (README/SPECIFICATION/NETWORK). If `primus-client` isn't yet a workspace member in `Cargo.toml`, add it there before following Part 2.
+
+---
+
+### PART 1: Deploying the Network on a VPS (Ubuntu)
+
+Connect to your server over SSH and run the following in order.
+
+**1. Prepare the server**
+
+Install the required system packages:
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl build-essential git pkg-config libssl-dev protobuf-compiler
+```
+
+**2. Install Rust**
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# Press Enter when prompted (choose the default option 1)
+source "$HOME/.cargo/env"
+```
+
+**3. Upload your code**
+
+Copy the `primus-project` folder to the server (e.g. clone it from GitHub, or transfer it via SFTP/SCP).
+Enter the project directory:
+```bash
+cd primus-project
+```
+
+**4. Clear old data (important!)**
+
+To make sure the Genesis block is created correctly, verify there's no leftover database from a previous run:
+```bash
+rm -rf .primus_db
+```
+
+**5. Build the core node**
+
+Build the optimized release binary:
+```bash
+cargo build --release -p primus-core
+```
+*(This takes a couple of minutes.)*
+
+**6. First run (genesis and key generation)**
+
+Start the core node:
+```bash
+./target/release/primus-core --port 9000
+```
+The setup wizard will ask you three questions:
+1. `Is this node a public SEED NODE? [y/N]` — enter **y**
+2. `Detecting your public IP... Use this IP? [Y/n]` — enter **y** (if it correctly detected your server's IP)
+3. `Add seed peer:` — leave blank, just press **Enter**.
+
+> **What happens next:**
+> The console will print `✅ Genesis successful! Crystal #0 created`.
+> The network is now officially live. Two files are created on disk: `master.wallet` (the Architect's wallet, holding 1 billion mass) and `operator.wallet`. **Write down the mnemonic phrases** the console prints — they will not be shown again!
+
+Stop the node with `Ctrl+C`. We'll run it in the background instead so it stays up permanently.
+
+**7. Run the node in the background (systemd)**
+
+Copy this whole block into the console and press Enter:
+```bash
+sudo tee /etc/systemd/system/primus.service > /dev/null <<EOF
+[Unit]
+Description=Primus Core Node
+After=network.target
+
+[Service]
+User=$USER
+WorkingDirectory=$PWD
+ExecStart=$PWD/target/release/primus-core --port 9000
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable primus
+sudo systemctl start primus
+```
+*(To tail the server logs in real time: `journalctl -u primus -f`)*
+
+---
+
+### PART 2: Preparing the Client for Users
+
+Now you want to hand a client to someone (a friend, say) so they can connect to your network right away. Do this on your Windows machine:
+
+**1. Build the client**
+
+In a Windows terminal, from the project folder:
+```powershell
+cargo build --release -p primus-client
+```
+
+**2. Create a distribution folder**
+1. Create a new folder on your Desktop, e.g. `Primus-Wallet`.
+2. Go into `target\release\` and copy `primus-client.exe` into your new `Primus-Wallet` folder.
+
+**3. Create a config file**
+
+Inside `Primus-Wallet`, create a text file named exactly `.primus_config.toml`. Open it in Notepad and enter your VPS server's IP:
+```toml
+public_ip = "YOUR_SERVER_IP_ADDRESS"
+port = 9000
+```
+Save the file.
+
+**4. Send it**
+
+Zip up the `Primus-Wallet` folder (the `.exe` and the `.toml` config) and send it to your friend!
+
+---
+
+### PART 3: What Your Friend (or Any Other Client) Does
+
+1. They download your ZIP archive and unpack the folder.
+2. They double-click `primus-client.exe` to launch it.
+3. A TUI interface opens. At the bottom, they see the hint: `Press 'g' to generate new wallet if missing.`
+4. They press the **`g`** key on their keyboard.
+5. The program instantly:
+   - Generates a quantum-resistant wallet for them.
+   - Saves it locally as `my.wallet`.
+   - Displays 12 secret words in green in the log panel on the right.
+6. The client immediately reads `.primus_config.toml` and connects to your VPS server (status: `Connected`).
+
+**How do you send them their first funds?**
+
+Your server holds the `master.wallet` file. To send your friend "money," copy that file to your own machine, run `primus-client`, and send them a portion of the 1 billion mass by entering their address in the Send screen. Once sent, the transaction is broadcast to the server and your friend's balance updates!
